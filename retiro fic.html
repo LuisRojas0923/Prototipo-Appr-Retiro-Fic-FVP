@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retiro de Fondos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white w-full max-w-sm mx-auto rounded-lg shadow-lg flex flex-col overflow-hidden border border-red-600">
+        <!-- Encabezado -->
+        <div class="bg-red-700 rounded-t-lg px-6 py-4 flex items-center justify-between">
+            <a href="Pantalla%20APP%20Bancoomeva.html" class="text-white text-2xl font-bold">&larr;</a>
+            <span class="text-white text-lg font-semibold flex-1 text-center">Retiro de fondos</span>
+            <span class="w-6"></span>
+        </div>
+        <!-- Pantalla de ingreso de monto (única) -->
+        <div id="pantalla-monto" class="px-6 pt-4 pb-6">
+            <div class="text-red-700 font-bold text-sm mb-2">OPERACIONES EN FONDOS <span class="float-right text-red-400 font-normal cursor-pointer">Cambiar</span></div>
+            <div class="mb-4">
+                <label for="retiro-monto" class="block text-base font-semibold text-gray-900 mb-1">VALOR A TRANSFERIR</label>
+                <input id="retiro-monto" type="number" min="1" placeholder="Ingrese un monto" class="w-full px-4 py-3 bg-gray-100 border-b-2 border-gray-300 text-2xl font-semibold text-gray-900 focus:outline-none focus:border-red-700" />
+            </div>
+            <button id="continuar-btn" class="w-full bg-red-700 text-white py-3 rounded font-semibold shadow hover:bg-red-800 transition-colors duration-200 mb-4 text-lg">Continuar</button>
+            <div class="bg-red-50 p-4 rounded border border-red-200 text-sm text-red-900">
+                <div class="flex items-start mb-2">
+                    <span class="mr-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="#fde8e8"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16h.01M12 8v4" /></svg></span>
+                    <div>
+                        <span class="font-bold">Recordar</span><br>
+                        El horario de aporte será en días hábiles desde la 8:00am hasta las 3:00pm.<br>
+                        El horario de retiros será en días hábiles desde las 8:00am hasta las 12:00m.
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <span class="mr-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="#fde8e8"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16h.01M12 8v4" /></svg></span>
+                    <div>
+                        <span class="font-bold">La cancelación total del fondo puede realizarse a través de la Oficina Virtual desde las 8:00am hasta las 4:00pm.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Pantalla de confirmación de retiro (inicialmente oculta) -->
+        <div id="pantalla-confirmacion" class="hidden px-6 pt-6 pb-6 bg-red-100">
+            <div class="mb-6">
+                <p class="text-red-900 text-lg font-semibold mb-2">Valor a retirar</p>
+                <p id="valor-retirar" class="text-3xl font-bold text-red-700 mb-2">$0,00</p>
+                <div class="flex items-start text-sm text-red-900 mb-4">
+                    <span class="mr-2 mt-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="#fde8e8"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16h.01M12 8v4" /></svg></span>
+                    <span>El valor final variará según el precio y número de unidades y los costos que apliquen.</span>
+                </div>
+                <hr class="my-2 border-red-300">
+                <p class="text-red-900 text-base font-semibold mt-4 mb-1">Retención en la fuente</p>
+                <div class="flex items-start text-sm text-red-900">
+                    <span class="mr-2 mt-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="#fde8e8"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16h.01M12 8v4" /></svg></span>
+                    <span>Este impuesto se descontará del saldo restante.</span>
+                </div>
+            </div>
+            <div class="bg-red-50 p-4 rounded border border-red-200 text-sm text-red-900 mt-6">
+                <div class="flex items-start">
+                    <span class="mr-2 mt-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="#fde8e8"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16h.01M12 8v4" /></svg></span>
+                    <span>Fiducoomeva asume exclusivamente la responsabilidad de las obligaciones relacionadas con el presente contrato frente al consumidor financiero.</span>
+                </div>
+            </div>
+        </div>
+        <script>
+            // SPA: mostrar pantalla de confirmación con el valor ingresado
+            // SPA: mostrar pantalla de confirmación con el valor ingresado
+            const continuarBtn = document.getElementById('continuar-btn');
+            const pantallaMonto = document.getElementById('pantalla-monto');
+            const pantallaConfirmacion = document.getElementById('pantalla-confirmacion');
+            const valorInput = document.getElementById('retiro-monto');
+            const valorRetirar = document.getElementById('valor-retirar');
+
+            function formatearMoneda(valor) {
+                return valor.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 });
+            }
+
+            continuarBtn.addEventListener('click', function() {
+                let valor = parseFloat(valorInput.value);
+                if (isNaN(valor) || valor <= 0) {
+                    valorRetirar.textContent = '$0,00';
+                } else {
+                    valorRetirar.textContent = formatearMoneda(valor);
+                }
+                pantallaMonto.classList.add('hidden');
+                pantallaConfirmacion.classList.remove('hidden');
+            });
+        </script>
+    </body>
+    </html>
+</html>

@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fondos de Inversión</title>
+    <!-- Incluye Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define la fuente Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Asegura que el cuerpo ocupe toda la altura para que el contenedor principal pueda simular la pantalla */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        /* Estilo para la tabla de detalles FVP (mantengo la clase por si se necesita en el futuro, aunque ahora no se usa para el detalle principal) */
+        .fvp-table th, .fvp-table td {
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0; /* gray-200 */
+            text-align: left;
+            font-size: 0.875rem; /* text-sm */
+        }
+        .fvp-table th {
+            background-color: #f7fafc; /* gray-50 */
+            font-weight: 600; /* font-semibold */
+            color: #4a5568; /* gray-700 */
+        }
+        .fvp-table tbody tr:nth-child(odd) {
+            background-color: #ffffff; /* white */
+        }
+        .fvp-table tbody tr:nth-child(even) {
+            background-color: #f7fafc; /* gray-50 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-full">
+    <!-- Modal Simulación Cuenta Ágil -->
+    <div id="cuentaAgilModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
+            <button id="closeCuentaAgil" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+            <h2 class="text-lg font-bold mb-4 text-green-700">Simulación Cuenta Ágil</h2>
+            <div class="mb-4">
+                <p class="text-gray-700 text-sm">Saldo disponible:</p>
+                <p class="text-2xl font-bold text-green-600">$ 3.250.000</p>
+            </div>
+            <div>
+                <p class="text-gray-700 text-sm mb-2">Movimientos recientes:</p>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>+ $1.000.000 - Abono FIC 360 (05/08/2025)</li>
+                    <li>- $250.000 - Retiro Cajero (04/08/2025)</li>
+                    <li>+ $500.000 - Transferencia (03/08/2025)</li>
+                </ul>
+            </div>
+        </div>
+        <!-- Vista de Detalles y Movimientos del Producto FIC 360 (debe estar dentro de app-container) -->
+        <div id="fic360-detail-view" class="hidden flex-col h-full">
+            <header class="bg-blue-600 text-white p-4 flex items-center rounded-t-lg flex-shrink-0">
+                <svg id="fic360-back-button" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 cursor-pointer">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                <h1 class="text-xl font-semibold ml-4 flex-grow text-center">Fondos de Inversión</h1>
+                <div class="w-6 h-6"></div>
+            </header>
+            <div class="bg-blue-700 text-white p-4 mx-4 mt-6 rounded-lg shadow-md flex items-center space-x-4 flex-shrink-0 justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-12 h-12 text-white">
+                    <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM12 9a3 3 0 100 6 3 3 0 000-6zM12 2a10 10 0 00-10 10c0 5.523 4.477 10 10 10s10-4.477 10-10A10 10 0 0012 2zM12 11a1 1 0 110 2 1 1 0 010-2z"/>
+                </svg>
+                <div>
+                    <p class="text-lg font-bold">FIC ABIERTO 360</p>
+                    <p class="text-sm">N° 9876543210</p>
+                </div>
+            </div>
+            <div class="flex bg-blue-600 text-white text-center text-sm font-semibold mt-4 flex-shrink-0">
+                <div id="fic360-details-tab" class="w-1/2 p-3 border-b-4 border-white cursor-pointer">DETALLES</div>
+                <div id="fic360-movements-tab" class="w-1/2 p-3 opacity-75 cursor-pointer">MOVIMIENTOS</div>
+            </div>
+            <div id="fic360-details-content" class="p-4 bg-white flex-grow overflow-y-auto">
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Estado</span>
+                    <span class="text-blue-500 font-semibold">ACT</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Saldo total</span>
+                    <span class="text-blue-500 font-semibold">$ 5.000.000,00</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Rentabilidad Mensual E.A.</span>
+                    <span class="text-blue-500 font-semibold">% 8.50</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-gray-700">Oficina Geo</span>
+                    <span class="text-blue-500 font-semibold">360</span>
+                </div>
+            </div>
+            <div id="fic360-movements-content" class="p-4 bg-white flex-grow overflow-y-auto hidden">
+                <div class="py-2 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Referencia:</span>
+                        <span class="text-blue-500 font-semibold">360001</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Descripción:</span>
+                        <span class="text-blue-500 font-semibold">APORTE INICIAL</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Valor:</span>
+                        <span class="text-blue-500 font-semibold">$ 5.000.000,00</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Fecha:</span>
+                        <span class="text-gray-600">2025-07-01 08:00:00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-around mt-4 space-x-4 p-4 flex-shrink-0 bg-white border-t border-gray-200">
+                <button class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold shadow-md hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m0 0l3-3m-3 3l-3-3m-6 3h12a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0018 4.5H6A2.25 2.25 0 003.75 6.75v10.5A2.25 2.25 0 006 19.5z" />
+                    </svg>
+                    <span>Adicionar</span>
+                </button>
+                <button class="flex-1 bg-white text-blue-600 border border-blue-600 py-3 rounded-lg font-semibold shadow-md hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15V9m0 0l3 3m-3-3l-3 3m-6-3h12a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0018 4.5H6A2.25 2.25 0 003.75 6.75v10.5A2.25 2.25 0 006 19.5z" />
+                    </svg>
+                    <span>Retirar</span>
+                </button>
+            </div>
+        </div>
+        <!-- Vista de Detalles y Movimientos del Producto FIC 360 (dentro de app-container) -->
+        <div id="fic360-detail-view" class="hidden flex-col h-full">
+            <header class="bg-blue-600 text-white p-4 flex items-center rounded-t-lg flex-shrink-0">
+                <svg id="fic360-back-button" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 cursor-pointer">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                <h1 class="text-xl font-semibold ml-4 flex-grow text-center">Fondos de Inversión</h1>
+                <div class="w-6 h-6"></div>
+            </header>
+            <div class="bg-blue-700 text-white p-4 mx-4 mt-6 rounded-lg shadow-md flex items-center space-x-4 flex-shrink-0 justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-12 h-12 text-white">
+                    <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM12 9a3 3 0 100 6 3 3 0 000-6zM12 2a10 10 0 00-10 10c0 5.523 4.477 10 10 10s10-4.477 10-10A10 10 0 0012 2zM12 11a1 1 0 110 2 1 1 0 010-2z"/>
+                </svg>
+                <div>
+                    <p class="text-lg font-bold">FIC ABIERTO 360</p>
+                    <p class="text-sm">N° 9876543210</p>
+                </div>
+            </div>
+            <div class="flex bg-blue-600 text-white text-center text-sm font-semibold mt-4 flex-shrink-0">
+                <div id="fic360-details-tab" class="w-1/2 p-3 border-b-4 border-white cursor-pointer">DETALLES</div>
+                <div id="fic360-movements-tab" class="w-1/2 p-3 opacity-75 cursor-pointer">MOVIMIENTOS</div>
+            </div>
+            <div id="fic360-details-content" class="p-4 bg-white flex-grow overflow-y-auto">
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Estado</span>
+                    <span class="text-blue-500 font-semibold">ACT</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Saldo total</span>
+                    <span class="text-blue-500 font-semibold">$ 5.000.000,00</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Rentabilidad Mensual E.A.</span>
+                    <span class="text-blue-500 font-semibold">% 8.50</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-gray-700">Oficina Geo</span>
+                    <span class="text-blue-500 font-semibold">360</span>
+                </div>
+            </div>
+            <div id="fic360-movements-content" class="p-4 bg-white flex-grow overflow-y-auto hidden">
+                <div class="py-2 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Referencia:</span>
+                        <span class="text-blue-500 font-semibold">360001</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Descripción:</span>
+                        <span class="text-blue-500 font-semibold">APORTE INICIAL</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Valor:</span>
+                        <span class="text-blue-500 font-semibold">$ 5.000.000,00</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Fecha:</span>
+                        <span class="text-gray-600">2025-07-01 08:00:00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-around mt-4 space-x-4 p-4 flex-shrink-0 bg-white border-t border-gray-200">
+                <button class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold shadow-md hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m0 0l3-3m-3 3l-3-3m-6 3h12a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0018 4.5H6A2.25 2.25 0 003.75 6.75v10.5A2.25 2.25 0 006 19.5z" />
+                    </svg>
+                    <span>Adicionar</span>
+                </button>
+                <button class="flex-1 bg-white text-blue-600 border border-blue-600 py-3 rounded-lg font-semibold shadow-md hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15V9m0 0l3 3m-3-3l-3 3m-6-3h12a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0018 4.5H6A2.25 2.25 0 003.75 6.75v10.5A2.25 2.25 0 006 19.5z" />
+                    </svg>
+                    <span>Retirar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Otro FIC -->
+    <div id="otroFicModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
+            <button id="closeOtroFic" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+            <h2 class="text-lg font-bold mb-4 text-red-700">Simulación Otro FIC</h2>
+            <div class="mb-4">
+                <p class="text-gray-700 text-sm">Nombre del FIC:</p>
+                <p class="text-lg font-semibold text-red-600">FIC Dinámico Plus</p>
+            </div>
+            <div class="mb-4">
+                <p class="text-gray-700 text-sm">Saldo actual:</p>
+                <p class="text-2xl font-bold text-red-600">$ 1.800.000</p>
+            </div>
+            <div>
+                <p class="text-gray-700 text-sm mb-2">Movimientos recientes:</p>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>+ $800.000 - Abono (01/08/2025)</li>
+                    <li>- $200.000 - Retiro (28/07/2025)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor principal que simula la pantalla del móvil -->
+    <div id="app-container" class="bg-white w-full max-w-sm mx-auto rounded-lg shadow-lg flex flex-col h-full overflow-hidden md:max-w-md lg:max-w-lg">
+
+        <!-- Vista Principal (Lista de Productos) -->
+        <div id="main-view" class="flex flex-col h-full">
+            <!-- Encabezado superior con logo y menú (fijo) -->
+            <header class="flex justify-between items-center p-4 flex-shrink-0">
+                <!-- Logo (ejemplo de SVG simple) -->
+                <svg width="40" height="24" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 0L0 24H40L20 0Z" fill="#D9534F"/>
+                    <path d="M20 0L10 12L30 12L20 0Z" fill="#4CAF50"/>
+                </svg>
+                <!-- Icono de menú (SVG) -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 text-gray-700 cursor-pointer">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+            </header>
+
+            <!-- Área de contenido principal (desplazable) -->
+            <div class="flex-grow overflow-y-auto">
+                <!-- Sección de Bienvenida -->
+                <div class="p-4">
+                    <p class="text-xl font-semibold text-gray-800">BIENVENIDO, Claudia 👋</p>
+                    <p class="text-gray-600 mt-1">¿Qué vamos a hacer hoy?</p>
+                </div>
+
+                <!-- Opciones de acceso rápido -->
+                <div class="grid grid-cols-3 gap-4 p-4">
+                    <div class="bg-white rounded-lg shadow p-4 flex flex-col items-center justify-center text-center border border-gray-200">
+                        <img src="https://placehold.co/40x40/f0f0f0/333333?text=Bre-B" alt="Bre-B" class="mb-2 rounded-md">
+                        <span class="text-sm font-medium text-gray-700">Bre-B</span>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4 flex flex-col items-center justify-center text-center border border-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-green-500 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                        </svg>
+                        <span class="text-sm font-medium text-gray-700">Clave Dinámica</span>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4 flex flex-col items-center justify-center text-center border border-gray-200">
+                        <img src="https://placehold.co/40x40/f0f0f0/333333?text=Billetera" alt="Billetera" class="mb-2 rounded-md">
+                        <span class="text-sm font-medium text-gray-700">Billetera</span>
+                        <span class="text-xs text-gray-500">Envía y Recibe</span>
+                    </div>
+                </div>
+
+                <!-- Sección "Mis productos" -->
+                <div class="p-4 mt-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Mis productos</h2>
+                    <div class="flex bg-gray-200 rounded-full p-1 mt-3">
+                        <!-- Botón Bancoomeva (ahora inactivo) -->
+                        <div class="w-1/2 text-center py-2 text-gray-600 text-sm font-medium">Bancoomeva</div>
+                        <!-- Botón Fiducoomeva (ahora activo) -->
+                        <div class="w-1/2 text-center py-2 bg-white rounded-full shadow-sm text-sm font-medium text-gray-800">Fiducoomeva</div>
+                    </div>
+
+                    <!-- Tarjetas de producto -->
+                    <div class="mt-4">
+                        <!-- Tarjeta de producto FIC - Clickable -->
+                        <div id="fic-product-card" class="bg-white rounded-lg shadow-md p-4 mb-4 flex items-center justify-between border border-gray-200 cursor-pointer">
+                            <div class="flex items-center space-x-3">
+                                <!-- Icono de tarjeta (SVG) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-8 h-8 text-red-500">
+                                    <path d="M21.75 6.75a4.5 4.5 0 00-4.5-4.5H6.75a4.5 4.5 0 00-4.5 4.5v9a4.5 4.5 0 004.5 4.5h10.5a4.5 4.5 0 004.5-4.5v-9zm-13.5 0h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5zm0 3.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5zm0 3.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5z" />
+                                </svg>
+                                <div>
+                                    <p class="text-base font-semibold text-gray-800">FIC ABIERTO AVANZAR VISTA</p>
+                                    <p class="text-sm text-gray-500">N° 10101010192</p>
+                                    <p class="text-lg font-bold text-gray-900">$ 16.367,04</p>
+                                    <p class="text-sm text-gray-600">Saldo disponible</p>
+                                </div>
+                            </div>
+                            <!-- Flecha hacia la derecha (SVG) -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 text-red-500 cursor-pointer">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                            </svg>
+                        </div>
+
+                        <!-- Tarjeta de producto FVP - Clickable -->
+                        <div id="fvp-product-card" class="bg-white rounded-lg shadow-md p-4 mb-4 flex items-center justify-between border border-gray-200 cursor-pointer">
+                            <div class="flex items-center space-x-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-8 h-8 text-green-500">
+                                    <path d="M21.75 6.75a4.5 4.5 0 00-4.5-4.5H6.75a4.5 4.5 0 00-4.5 4.5v9a4.5 4.5 0 004.5 4.5h10.5a4.5 4.5 0 004.5-4.5v-9zm-13.5 0h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5zm0 3.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5zm0 3.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5z" />
+                                </svg>
+                                <div>
+                                    <p class="text-base font-semibold text-gray-800">FVP</p>
+                                    <p class="text-sm text-gray-500">N° 1234567890</p>
+                                    <p class="text-lg font-bold text-gray-900">$ 1.500.000,00</p>
+                                    <p class="text-sm text-gray-600">Saldo disponible</p>
+                                </div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 text-green-500 cursor-pointer">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                            </svg>
+                        </div>
+
+                        <!-- Otra tarjeta de producto (ejemplo) -->
+                        <div id="fic360-product-card" class="bg-white rounded-lg shadow-md p-4 mb-4 flex items-center justify-between border border-gray-200 cursor-pointer">
+                            <div class="flex items-center space-x-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-8 h-8 text-blue-500">
+                                    <path d="M21.75 6.75a4.5 4.5 0 00-4.5-4.5H6.75a4.5 4.5 0 00-4.5 4.5v9a4.5 4.5 0 004.5 4.5h10.5a4.5 4.5 0 004.5-4.5v-9zm-13.5 0h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5zm0 3.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5zm0 3.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5z" />
+                                </svg>
+                                <div>
+                                    <p class="text-base font-semibold text-gray-800">FIC ABIERTO 360</p>
+                                    <p class="text-sm text-gray-500">N° 9876543210</p>
+                                    <p class="text-lg font-bold text-gray-900">$ 5.000.000,00</p>
+                                    <p class="text-sm text-gray-600">Saldo disponible</p>
+                                </div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 text-blue-500 cursor-pointer">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                            </svg>
+                        </div>
+        <!-- Vista de Detalles y Movimientos del Producto FIC 360 -->
+        <div id="fic360-detail-view" class="hidden flex-col h-full">
+            <header class="bg-blue-600 text-white p-4 flex items-center rounded-t-lg flex-shrink-0">
+                <svg id="fic360-back-button" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 cursor-pointer">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                <h1 class="text-xl font-semibold ml-4 flex-grow text-center">Fondos de Inversión</h1>
+                <div class="w-6 h-6"></div>
+            </header>
+            <div class="bg-blue-700 text-white p-4 mx-4 mt-6 rounded-lg shadow-md flex items-center space-x-4 flex-shrink-0 justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-12 h-12 text-white">
+                    <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM12 9a3 3 0 100 6 3 3 0 000-6zM12 2a10 10 0 00-10 10c0 5.523 4.477 10 10 10s10-4.477 10-10A10 10 0 0012 2zM12 11a1 1 0 110 2 1 1 0 010-2z"/>
+                </svg>
+                <div>
+                    <p class="text-lg font-bold">FIC ABIERTO 360</p>
+                    <p class="text-sm">N° 9876543210</p>
+                </div>
+            </div>
+            <div class="flex bg-blue-600 text-white text-center text-sm font-semibold mt-4 flex-shrink-0">
+                <div id="fic360-details-tab" class="w-1/2 p-3 border-b-4 border-white cursor-pointer">DETALLES</div>
+                <div id="fic360-movements-tab" class="w-1/2 p-3 opacity-75 cursor-pointer">MOVIMIENTOS</div>
+            </div>
+            <div id="fic360-details-content" class="p-4 bg-white flex-grow overflow-y-auto">
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Estado</span>
+                    <span class="text-blue-500 font-semibold">ACT</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Saldo total</span>
+                    <span class="text-blue-500 font-semibold">$ 5.000.000,00</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Rentabilidad Mensual E.A.</span>
+                    <span class="text-blue-500 font-semibold">% 8.50</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-gray-700">Oficina Geo</span>
+                    <span class="text-blue-500 font-semibold">360</span>
+                </div>
+            </div>
+            <div id="fic360-movements-content" class="p-4 bg-white flex-grow overflow-y-auto hidden">
+                <div class="py-2 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Referencia:</span>
+                        <span class="text-blue-500 font-semibold">360001</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Descripción:</span>
+                        <span class="text-blue-500 font-semibold">APORTE INICIAL</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Valor:</span>
+                        <span class="text-blue-500 font-semibold">$ 5.000.000,00</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Fecha:</span>
+                        <span class="text-gray-600">2025-07-01 08:00:00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-around mt-4 space-x-4 p-4 flex-shrink-0 bg-white border-t border-gray-200">
+                <button class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold shadow-md hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m0 0l3-3m-3 3l-3-3m-6 3h12a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0018 4.5H6A2.25 2.25 0 003.75 6.75v10.5A2.25 2.25 0 006 19.5z" />
+                    </svg>
+                    <span>Adicionar</span>
+                </button>
+                <button class="flex-1 bg-white text-blue-600 border border-blue-600 py-3 rounded-lg font-semibold shadow-md hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15V9m0 0l3 3m-3-3l-3 3m-6-3h12a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0018 4.5H6A2.25 2.25 0 003.75 6.75v10.5A2.25 2.25 0 006 19.5z" />
+                    </svg>
+                    <span>Retirar</span>
+                </button>
+            </div>
+        </div>
+                    </div>
+                </div>
+            </div>
+
+
+           
+            <!-- Barra de Navegación Inferior (fija) -->
+            <footer class="flex justify-around items-center bg-white border-t border-gray-200 p-3 flex-shrink-0">
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Ayuda (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712L12 15l-2.121-2.121c-1.172-1.025-1.172-2.687 0-3.712zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                    <span class="text-xs mt-1">Ayuda</span>
+                </div>
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Buzón (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                    <span class="text-xs mt-1">Buzón</span>
+                </div>
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Billetera (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.79-2.104c1.49-.313 2.97-.668 4.44-1.062M6.75 15V7.5m0 0l-1.5 1.5M6.75 7.5l1.5 1.5m-.75 0h.008v.008H6.75V7.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM12 15V7.5m0 0l-1.5 1.5M12 7.5l1.5 1.5m-.75 0h.008v.008H12V7.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM17.25 15V7.5m0 0l-1.5 1.5M17.25 7.5l1.5 1.5m-.75 0h.008v.008h-.008V7.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM4.5 15a.75.75 0 00.75-.75V5.25A.75.75 0 004.5 4.5h-1.5a.75.75 0 00-.75.75v9A.75.75 0 003 15h1.5zm6 0a.75.75 0 00.75-.75V5.25A.75.75 0 0010.5 4.5h-1.5a.75.75 0 00-.75.75v9A.75.75 0 009 15h1.5zm6 0a.75.75 0 00.75-.75V5.25A.75.75 0 0016.5 4.5h-1.5a.75.75 0 00-.75.75v9A.75.75 0 0015 15h1.5z" />
+                    </svg>
+                    <span class="text-xs mt-1">Billetera</span>
+                </div>
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Ajustes (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.125 1.125 0 011.035.771c.915.256 1.76.59 2.516.974a1.125 1.125 0 011.45 1.45c-.384.756-.718 1.601-.974 2.516a1.125 1.125 0 01.771 1.035c1.756.426 1.756 2.924 0 3.35a1.125 1.125 0 01-.771 1.035c.256.915.59 1.76.974 2.516a1.125 1.125 0 01-1.45 1.45c-.756-.384-1.601-.718-2.516-.974a1.125 1.125 0 01-1.035.771c-.426 1.756-2.924 1.756-3.35 0a1.125 1.125 0 01-1.035-.771c-.915-.256-1.76-.59-2.516-.974a1.125 1.125 0 01-1.45-1.45c.384-.756.718-1.601.974-2.516a1.125 1.125 0 01-.771-1.035c-1.756-.426-1.756-2.924 0-3.35a1.125 1.125 0 01.771-1.035c-.256-.915-.59-1.76-.974-2.516a1.125 1.125 0 011.45-1.45c.756.384 1.601.718 2.516.974a1.125 1.125 0 011.035-.771z" />
+                    </svg>
+                    <span class="text-xs mt-1">Ajustes</span>
+                </div>
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Salir (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                    </svg>
+                    <span class="text-xs mt-1">Salir</span>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Vista de Detalles y Movimientos del Producto FIC -->
+        <div id="fic-detail-view" class="hidden flex-col h-full">
+            <!-- Encabezado de la vista de detalles FIC -->
+            <header class="bg-red-600 text-white p-4 flex items-center rounded-t-lg flex-shrink-0">
+                <!-- Icono de flecha hacia atrás (SVG) para volver a la vista principal -->
+                <svg id="fic-back-button" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 cursor-pointer">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                <h1 class="text-xl font-semibold ml-4 flex-grow text-center">Fondos de Inversión</h1>
+                <!-- Espacio para centrar el título si no hay icono a la derecha -->
+                <div class="w-6 h-6"></div>
+            </header>
+
+            <!-- Tarjeta del Fondo de Inversión FIC (en vista de detalles) -->
+            <div class="bg-red-700 text-white p-4 mx-4 mt-6 rounded-lg shadow-md flex items-center space-x-4 flex-shrink-0 justify-center">
+                <!-- Icono de alcancía (SVG) -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-12 h-12 text-white">
+                    <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM12 9a3 3 0 100 6 3 3 0 000-6zM12 2a10 10 0 00-10 10c0 5.523 4.477 10 10 10s10-4.477 10-10A10 10 0 0012 2zM12 11a1 1 0 110 2 1 1 0 010-2zM19.364 4.636a1 1 0 010 1.414L17.95 7.414a1 1 0 01-1.414 0L15.12 5.99a1 1 0 010-1.414L16.536 3.172a1 1 0 011.414 0l1.414 1.414zM4.636 19.364a1 1 0 01-1.414 0L3.172 17.95a1 1 0 010-1.414L4.636 15.12a1 1 0 011.414 0L7.414 16.536a1 1 0 010 1.414l-1.414 1.414zM12 0a1 1 0 011 1v1a1 1 0 11-2 0V1a1 1 0 011-1zM22 12a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM0 12a1 1 0 011-1h1a1 1 0 110 2H1a1 1 0 01-1-1zM12 22a1 1 0 01-1-1v-1a1 1 0 112 0v1a1 1 0 01-1 1z"/>
+                </svg>
+                <div>
+                    <p class="text-lg font-bold">FIC ABIERTO AVANZAR VISTA</p>
+                    <p class="text-sm">N° 10101010192</p>
+                </div>
+            </div>
+
+            <!-- Pestañas de Navegación (Detalles/Movimientos) FIC -->
+            <div class="flex bg-red-600 text-white text-center text-sm font-semibold mt-4 flex-shrink-0">
+                <div id="fic-details-tab" class="w-1/2 p-3 border-b-4 border-white cursor-pointer">DETALLES</div>
+                <div id="fic-movements-tab" class="w-1/2 p-3 opacity-75 cursor-pointer">MOVIMIENTOS</div>
+            </div>
+
+            <!-- Contenido de Detalles FIC (desplazable) -->
+            <div id="fic-details-content" class="p-4 bg-white flex-grow overflow-y-auto">
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Estado</span>
+                    <span class="text-green-500 font-semibold">ACT</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Vr. control cancelación</span>
+                    <span class="text-green-500 font-semibold">$ 200.000,00</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Saldo total</span>
+                    <span class="text-green-500 font-semibold">$ 216.751,67</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Saldo en canje</span>
+                    <span class="text-green-500 font-semibold">$ 0,00</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Saldo disponible</span>
+                    <span class="text-green-500 font-semibold">$ 16.367,04</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Valor de embargo</span>
+                    <span class="text-green-500 font-semibold">$ 0,00</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Rentabilidad Mensual E.A.</span>
+                    <span class="text-green-500 font-semibold">% 10.66</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-gray-700">Oficina Geo</span>
+                    <span class="text-green-500 font-semibold">101</span>
+                </div>
+            </div>
+
+            <!-- Contenido de Movimientos FIC (oculto por defecto, desplazable) -->
+            <div id="fic-movements-content" class="p-4 bg-white flex-grow overflow-y-auto hidden">
+                <!-- Movimiento 4 (más reciente) -->
+                <div class="py-2 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Referencia:</span>
+                        <span class="text-green-500 font-semibold">4608317</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Descripción:</span>
+                        <span class="text-green-500 font-semibold">RENDIMIENTOS BRUTOS (+)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Valor:</span>
+                        <span class="text-green-500 font-semibold">$ 70,12</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Fecha:</span>
+                        <span class="text-gray-600">2025-07-08 00:00:00</span>
+                    </div>
+                </div>
+                <!-- Movimiento 3 -->
+                <div class="py-2 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Referencia:</span>
+                        <span class="text-green-500 font-semibold">4605027</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Descripción:</span>
+                        <span class="text-green-500 font-semibold">RENDIMIENTOS BRUTOS (+)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Valor:</span>
+                        <span class="text-green-500 font-semibold">$ 65,94</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Fecha:</span>
+                        <span class="text-gray-600">2025-07-07 00:00:00</span>
+                    </div>
+                </div>
+                <!-- Movimiento 2 -->
+                <div class="py-2 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Referencia:</span>
+                        <span class="text-green-500 font-semibold">4601850</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Descripción:</span>
+                        <span class="text-green-500 font-semibold">RENDIMIENTOS BRUTOS (+)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Valor:</span>
+                        <span class="text-green-500 font-semibold">$ 45,45</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Fecha:</span>
+                        <span class="text-gray-600">2025-07-06 00:00:00</span>
+                    </div>
+                </div>
+                <!-- Movimiento 1 (más antiguo) -->
+                <div class="py-2 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Referencia:</span>
+                        <span class="text-green-500 font-semibold">4599063</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Descripción:</span>
+                        <span class="text-green-500 font-semibold">RENDIMIENTOS BRUTOS (+)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Valor:</span>
+                        <span class="text-green-500 font-semibold">$ 45,47</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Fecha:</span>
+                        <span class="text-gray-600">2025-07-05 00:00:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones Adicionar y Retirar SOLO en la vista de detalles FIC -->
+            <div class="flex justify-around mt-4 space-x-4 p-4 flex-shrink-0 bg-white border-t border-gray-200">
+                <button class="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold shadow-md hover:bg-red-700 transition-colors duration-200 flex items-center justify-center space-x-2" id="fic-adicionar-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m0 0l3-3m-3 3l-3-3m-6 3h12a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0018 4.5H6A2.25 2.25 0 003.75 6.75v10.5A2.25 2.25 0 006 19.5z" />
+                    </svg>
+                    <span>Adicionar</span>
+                </button>
+                <a href="retiro fic.html" class="flex-1 bg-white text-red-600 border border-red-600 py-3 rounded-lg font-semibold shadow-md hover:bg-red-50 transition-colors duration-200 flex items-center justify-center space-x-2" id="fic-retirar-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15V9m0 0l3 3m-3-3l-3 3m-6-3h12a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0018 4.5H6A2.25 2.25 0 003.75 6.75v10.5A2.25 2.25 0 006 19.5z" />
+                    </svg>
+                    <span>Retirar</span>
+                </a>
+            </div>
+
+            <!-- Barra de Navegación Inferior (fija) -->
+            <footer class="flex justify-around items-center bg-white border-t border-gray-200 p-3 flex-shrink-0">
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Ayuda (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712L12 15l-2.121-2.121c-1.172-1.025-1.172-2.687 0-3.712zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                    <span class="text-xs mt-1">Ayuda</span>
+                </div>
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Buzón (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                    <span class="text-xs mt-1">Buzón</span>
+                </div>
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Billetera (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.79-2.104c1.49-.313 2.97-.668 4.44-1.062M6.75 15V7.5m0 0l-1.5 1.5M6.75 7.5l1.5 1.5m-.75 0h.008v.008H6.75V7.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM12 15V7.5m0 0l-1.5 1.5M12 7.5l1.5 1.5m-.75 0h.008v.008H12V7.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM17.25 15V7.5m0 0l-1.5 1.5M17.25 7.5l1.5 1.5m-.75 0h.008v.008h-.008V7.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM4.5 15a.75.75 0 00.75-.75V5.25A.75.75 0 004.5 4.5h-1.5a.75.75 0 00-.75.75v9A.75.75 0 003 15h1.5zm6 0a.75.75 0 00.75-.75V5.25A.75.75 0 0010.5 4.5h-1.5a.75.75 0 00-.75.75v9A.75.75 0 009 15h1.5zm6 0a.75.75 0 00.75-.75V5.25A.75.75 0 0016.5 4.5h-1.5a.75.75 0 00-.75.75v9A.75.75 0 0015 15h1.5z" />
+                    </svg>
+                    <span class="text-xs mt-1">Billetera</span>
+                </div>
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Ajustes (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.125 1.125 0 011.035.771c.915.256 1.76.59 2.516.974a1.125 1.125 0 011.45 1.45c-.384.756-.718 1.601-.974 2.516a1.125 1.125 0 01.771 1.035c1.756.426 1.756 2.924 0 3.35a1.125 1.125 0 01-.771 1.035c.256.915.59 1.76.974 2.516a1.125 1.125 0 01-1.45 1.45c-.756-.384-1.601-.718-2.516-.974a1.125 1.125 0 01-1.035.771c-.426 1.756-2.924 1.756-3.35 0a1.125 1.125 0 01-1.035-.771c-.915-.256-1.76-.59-2.516-.974a1.125 1.125 0 01-1.45-1.45c.384-.756.718-1.601.974-2.516a1.125 1.125 0 01-.771-1.035c-1.756-.426-1.756-2.924 0-3.35a1.125 1.125 0 01.771-1.035c-.256-.915-.59-1.76-.974-2.516a1.125 1.125 0 011.45-1.45c.756.384 1.601.718 2.516.974a1.125 1.125 0 011.035-.771z" />
+                    </svg>
+                    <span class="text-xs mt-1">Ajustes</span>
+                </div>
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Salir (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                    </svg>
+                    <span class="text-xs mt-1">Salir</span>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Nueva Vista de Detalles y Movimientos del Producto FVP -->
+        <div id="fvp-detail-view" class="hidden flex-col h-full">
+            <!-- Encabezado de la vista de detalles FVP -->
+            <header class="bg-red-600 text-white p-4 flex items-center rounded-t-lg flex-shrink-0">
+                <!-- Icono de flecha hacia atrás (SVG) para volver a la vista principal -->
+                <svg id="fvp-back-button" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 cursor-pointer">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                <h1 class="text-xl font-semibold ml-4 flex-grow text-center">Fondos de Inversión</h1>
+                <!-- Espacio para centrar el título si no hay icono a la derecha -->
+                <div class="w-6 h-6"></div>
+            </header>
+
+            <!-- Tarjeta del Fondo de Inversión FVP (en vista de detalles) -->
+             <div class="bg-red-700 text-white p-4 mx-4 mt-6 rounded-lg shadow-md flex items-center space-x-4 flex-shrink-0 justify-center">
+                <!-- Icono de alcancía (SVG) -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-12 h-12 text-white">
+                    <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM12 9a3 3 0 100 6 3 3 0 000-6zM12 2a10 10 0 00-10 10c0 5.523 4.477 10 10 10s10-4.477 10-10A10 10 0 0012 2zM12 11a1 1 0 110 2 1 1 0 010-2zM19.364 4.636a1 1 0 010 1.414L17.95 7.414a1 1 0 01-1.414 0L15.12 5.99a1 1 0 010-1.414L16.536 3.172a1 1 0 011.414 0l1.414 1.414zM4.636 19.364a1 1 0 01-1.414 0L3.172 17.95a1 1 0 010-1.414L4.636 15.12a1 1 0 011.414 0L7.414 16.536a1 1 0 010 1.414l-1.414 1.414zM12 0a1 1 0 011 1v1a1 1 0 11-2 0V1a1 1 0 011-1zM22 12a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM0 12a1 1 0 011-1h1a1 1 0 110 2H1a1 1 0 01-1-1zM12 22a1 1 0 01-1-1v-1a1 1 0 112 0v1a1 1 0 01-1 1z"/>
+                </svg>
+                <div>
+                    <p class="text-lg font-bold">FVP</p>
+                    <p class="text-sm">N° 1234567890</p>
+                </div>
+            </div>
+
+
+            <!-- Pestañas de Navegación (Detalles/Movimientos) FVP -->
+            <div class="flex bg-red-600 text-white text-center text-sm font-semibold mt-4 flex-shrink-0">
+                <div id="fvp-details-tab" class="w-1/2 p-3 border-b-4 border-white cursor-pointer">DETALLES</div>
+                <div id="fvp-movements-tab" class="w-1/2 p-3 opacity-75 cursor-pointer">MOVIMIENTOS</div>
+            </div>
+
+            <!-- Contenido de Detalles FVP (desplazable) -->
+            <div id="fvp-details-content" class="p-4 bg-white flex-grow overflow-y-auto">
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Portafolio</span>
+                    <span class="text-green-500 font-semibold">Renta Fija Corto Plazo o de Liquidez</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Saldo Total:</span>
+                    <span class="text-green-500 font-semibold">$ 1.000.000,00</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Saldo Sin Retención Contingente:</span>
+                    <span class="text-green-500 font-semibold">$ 1.500.000,00</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Saldo Con Retención Contingente:</span>
+                    <span class="text-green-500 font-semibold">$ 0,00</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Saldo Exentos:</span>
+                    <span class="text-green-500 font-semibold">$ 1.500.000,00</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-gray-700">Porc. De Distribución Actual:</span>
+                    <span class="text-green-500 font-semibold">100.00 %</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-gray-700">Porc. De Distribución Aportes Futuros:</span>
+                    <span class="text-green-500 font-semibold">100.00 %</span>
+                </div>
+            </div>
+
+            <!-- Contenido de Movimientos FVP (oculto por defecto, desplazable) -->
+            <div id="fvp-movements-content" class="p-4 bg-white flex-grow overflow-y-auto hidden">
+                <!-- Simulación de Movimientos FVP (más reciente a más antiguo) -->
+                <div class="py-2 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Referencia:</span>
+                        <span class="text-green-500 font-semibold">9001234</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Descripción:</span>
+                        <span class="text-green-500 font-semibold">APORTE PERIÓDICO</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Valor:</span>
+                        <span class="text-green-500 font-semibold">$ 500.000,00</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Fecha:</span>
+                        <span class="text-gray-600">2025-07-09 10:30:00</span>
+                    </div>
+                </div>
+                <div class="py-2 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Referencia:</span>
+                        <span class="text-red-500 font-semibold">9001230</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Descripción:</span>
+                        <span class="text-red-500 font-semibold">RETIRO PARCIAL</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Valor:</span>
+                        <span class="text-red-500 font-semibold">$ 100.000,00</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Fecha:</span>
+                        <span class="text-gray-600">2025-07-08 15:00:00</span>
+                    </div>
+                </div>
+                <div class="py-2 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Referencia:</span>
+                        <span class="text-green-500 font-semibold">9001225</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Descripción:</span>
+                        <span class="text-green-500 font-semibold">RENDIMIENTOS MENSUALES</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Valor:</span>
+                        <span class="text-green-500 font-semibold">$ 25.000,00</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-700">Fecha:</span>
+                        <span class="text-gray-600">2025-07-01 08:00:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones Adicionar y Retirar (fijos, justo encima del footer en la vista de detalles FVP) -->
+            <div class="flex justify-around mt-4 space-x-4 p-4 flex-shrink-0 bg-white border-t border-gray-200">
+                <button class="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold shadow-md hover:bg-red-700 transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <!-- Icono para Adicionar (flecha hacia abajo en una bolsa) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m0 0l3-3m-3 3l-3-3m-6 3h12a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0018 4.5H6A2.25 2.25 0 003.75 6.75v10.5A2.25 2.25 0 006 19.5z" />
+                    </svg>
+                    <span>Adicionar</span>
+                </button>
+                <button class="flex-1 bg-white text-red-600 border border-red-600 py-3 rounded-lg font-semibold shadow-md hover:bg-red-50 transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <!-- Icono para Retirar (flecha hacia arriba en una bolsa) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15V9m0 0l3 3m-3-3l-3 3m-6-3h12a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0018 4.5H6A2.25 2.25 0 003.75 6.75v10.5A2.25 2.25 0 006 19.5z" />
+                    </svg>
+                    <span>Retirar</span>
+                </button>
+            </div>
+
+            <!-- Barra de Navegación Inferior (fija) -->
+            <footer class="flex justify-around items-center bg-white border-t border-gray-200 p-3 flex-shrink-0">
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Ayuda (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712L12 15l-2.121-2.121c-1.172-1.025-1.172-2.687 0-3.712zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                    <span class="text-xs mt-1">Ayuda</span>
+                </div>
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Buzón (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                    <span class="text-xs mt-1">Buzón</span>
+                </div>
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Billetera (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.79-2.104c1.49-.313 2.97-.668 4.44-1.062M6.75 15V7.5m0 0l-1.5 1.5M6.75 7.5l1.5 1.5m-.75 0h.008v.008H6.75V7.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM12 15V7.5m0 0l-1.5 1.5M12 7.5l1.5 1.5m-.75 0h.008v.008H12V7.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM17.25 15V7.5m0 0l-1.5 1.5M17.25 7.5l1.5 1.5m-.75 0h.008v.008h-.008V7.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM4.5 15a.75.75 0 00.75-.75V5.25A.75.75 0 004.5 4.5h-1.5a.75.75 0 00-.75.75v9A.75.75 0 003 15h1.5zm6 0a.75.75 0 00.75-.75V5.25A.75.75 0 0010.5 4.5h-1.5a.75.75 0 00-.75.75v9A.75.75 0 009 15h1.5zm6 0a.75.75 0 00.75-.75V5.25A.75.75 0 0016.5 4.5h-1.5a.75.75 0 00-.75.75v9A.75.75 0 0015 15h1.5z" />
+                    </svg>
+                    <span class="text-xs mt-1">Billetera</span>
+                </div>
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Ajustes (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.125 1.125 0 011.035.771c.915.256 1.76.59 2.516.974a1.125 1.125 0 011.45 1.45c-.384.756-.718 1.601-.974 2.516a1.125 1.125 0 01.771 1.035c1.756.426 1.756 2.924 0 3.35a1.125 1.125 0 01-.771 1.035c.256.915.59 1.76.974 2.516a1.125 1.125 0 01-1.45 1.45c-.756-.384-1.601-.718-2.516-.974a1.125 1.125 0 01-1.035.771c-.426 1.756-2.924 1.756-3.35 0a1.125 1.125 0 01-1.035-.771c-.915-.256-1.76-.59-2.516-.974a1.125 1.125 0 01-1.45-1.45c.384-.756.718-1.601.974-2.516a1.125 1.125 0 01-.771-1.035c-1.756-.426-1.756-2.924 0-3.35a1.125 1.125 0 01.771-1.035c-.256-.915-.59-1.76-.974-2.516a1.125 1.125 0 011.45-1.45c.756.384 1.601.718 2.516.974a1.125 1.125 0 011.035-.771z" />
+                    </svg>
+                    <span class="text-xs mt-1">Ajustes</span>
+                </div>
+                <div class="flex flex-col items-center text-gray-500">
+                    <!-- Icono de Salir (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                    </svg>
+                    <span class="text-xs mt-1">Salir</span>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Referencias a vistas principales
+        const mainView = document.getElementById('main-view');
+        const ficDetailView = document.getElementById('fic-detail-view');
+        const fvpDetailView = document.getElementById('fvp-detail-view');
+        const fic360DetailView = document.getElementById('fic360-detail-view');
+
+        // Tarjetas de productos
+        const ficProductCard = document.getElementById('fic-product-card');
+        const fvpProductCard = document.getElementById('fvp-product-card');
+        const fic360ProductCard = document.getElementById('fic360-product-card');
+
+        // Botones de regreso
+        const ficBackButton = document.getElementById('fic-back-button');
+        const fvpBackButton = document.getElementById('fvp-back-button');
+        const fic360BackButton = document.getElementById('fic360-back-button');
+
+        // Tabs y contenidos FIC
+        const ficDetailsTab = document.getElementById('fic-details-tab');
+        const ficMovementsTab = document.getElementById('fic-movements-tab');
+        const ficDetailsContent = document.getElementById('fic-details-content');
+        const ficMovementsContent = document.getElementById('fic-movements-content');
+
+        // Tabs y contenidos FVP
+        const fvpDetailsTab = document.getElementById('fvp-details-tab');
+        const fvpMovementsTab = document.getElementById('fvp-movements-tab');
+        const fvpDetailsContent = document.getElementById('fvp-details-content');
+        const fvpMovementsContent = document.getElementById('fvp-movements-content');
+
+        // Tabs y contenidos FIC 360
+        const fic360DetailsTab = document.getElementById('fic360-details-tab');
+        const fic360MovementsTab = document.getElementById('fic360-movements-tab');
+        const fic360DetailsContent = document.getElementById('fic360-details-content');
+        const fic360MovementsContent = document.getElementById('fic360-movements-content');
+
+        // Función para mostrar una vista de detalle
+        function showDetailView(viewToShow) {
+            mainView.classList.add('hidden');
+            ficDetailView.classList.add('hidden');
+            fvpDetailView.classList.add('hidden');
+            fic360DetailView.classList.add('hidden');
+            viewToShow.classList.remove('hidden');
+            viewToShow.classList.add('flex');
+        }
+        // Función para volver a la vista principal
+        function showMainView() {
+            ficDetailView.classList.add('hidden');
+            ficDetailView.classList.remove('flex');
+            fvpDetailView.classList.add('hidden');
+            fvpDetailView.classList.remove('flex');
+            fic360DetailView.classList.add('hidden');
+            fic360DetailView.classList.remove('flex');
+            mainView.classList.remove('hidden');
+        }
+        // Tabs FIC
+        function showFicTab(tabName) {
+            if (tabName === 'details') {
+                ficDetailsTab.classList.add('border-white');
+                ficDetailsTab.classList.remove('opacity-75');
+                ficMovementsTab.classList.remove('border-white');
+                ficMovementsTab.classList.add('opacity-75');
+                ficDetailsContent.classList.remove('hidden');
+                ficMovementsContent.classList.add('hidden');
+            } else {
+                ficMovementsTab.classList.add('border-white');
+                ficMovementsTab.classList.remove('opacity-75');
+                ficDetailsTab.classList.remove('border-white');
+                ficDetailsTab.classList.add('opacity-75');
+                ficMovementsContent.classList.remove('hidden');
+                ficDetailsContent.classList.add('hidden');
+            }
+        }
+        // Tabs FVP
+        function showFvpTab(tabName) {
+            if (tabName === 'details') {
+                fvpDetailsTab.classList.add('border-white');
+                fvpDetailsTab.classList.remove('opacity-75');
+                fvpMovementsTab.classList.remove('border-white');
+                fvpMovementsTab.classList.add('opacity-75');
+                fvpDetailsContent.classList.remove('hidden');
+                fvpMovementsContent.classList.add('hidden');
+            } else {
+                fvpMovementsTab.classList.add('border-white');
+                fvpMovementsTab.classList.remove('opacity-75');
+                fvpDetailsTab.classList.remove('border-white');
+                fvpDetailsTab.classList.add('opacity-75');
+                fvpMovementsContent.classList.remove('hidden');
+                fvpDetailsContent.classList.add('hidden');
+            }
+        }
+        // Tabs FIC 360
+        function showFic360Tab(tabName) {
+            if (tabName === 'details') {
+                fic360DetailsTab.classList.add('border-white');
+                fic360DetailsTab.classList.remove('opacity-75');
+                fic360MovementsTab.classList.remove('border-white');
+                fic360MovementsTab.classList.add('opacity-75');
+                fic360DetailsContent.classList.remove('hidden');
+                fic360MovementsContent.classList.add('hidden');
+            } else {
+                fic360MovementsTab.classList.add('border-white');
+                fic360MovementsTab.classList.remove('opacity-75');
+                fic360DetailsTab.classList.remove('border-white');
+                fic360DetailsTab.classList.add('opacity-75');
+                fic360MovementsContent.classList.remove('hidden');
+                fic360DetailsContent.classList.add('hidden');
+            }
+        }
+        // Listeners para tarjetas
+        if (ficProductCard && ficDetailView) ficProductCard.addEventListener('click', () => { showDetailView(ficDetailView); showFicTab('details'); });
+        if (fvpProductCard && fvpDetailView) fvpProductCard.addEventListener('click', () => { showDetailView(fvpDetailView); showFvpTab('details'); });
+        if (fic360ProductCard && fic360DetailView) fic360ProductCard.addEventListener('click', () => { showDetailView(fic360DetailView); showFic360Tab('details'); });
+        // Listeners para volver
+        if (ficBackButton) ficBackButton.addEventListener('click', showMainView);
+        if (fvpBackButton) fvpBackButton.addEventListener('click', showMainView);
+        if (fic360BackButton) fic360BackButton.addEventListener('click', showMainView);
+        // Listeners para tabs
+        if (ficDetailsTab) ficDetailsTab.addEventListener('click', () => showFicTab('details'));
+        if (ficMovementsTab) ficMovementsTab.addEventListener('click', () => showFicTab('movements'));
+        if (fvpDetailsTab) fvpDetailsTab.addEventListener('click', () => showFvpTab('details'));
+        if (fvpMovementsTab) fvpMovementsTab.addEventListener('click', () => showFvpTab('movements'));
+        if (fic360DetailsTab) fic360DetailsTab.addEventListener('click', () => showFic360Tab('details'));
+        if (fic360MovementsTab) fic360MovementsTab.addEventListener('click', () => showFic360Tab('movements'));
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // Mostrar simulación de Cuenta Ágil al hacer clic en el botón Bancoomeva
+        const bancoomevaBtn = Array.from(document.querySelectorAll('.flex.bg-gray-200.rounded-full.p-1.mt-3 > div')).find(div => div.textContent.includes('Bancoomeva'));
+        if (bancoomevaBtn) {
+            bancoomevaBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('cuentaAgilModal').classList.remove('hidden');
+            });
+        }
+        document.getElementById('closeCuentaAgil').addEventListener('click', () => {
+            document.getElementById('cuentaAgilModal').classList.add('hidden');
+        });
+
+        // Mostrar vista de detalle FIC 360 al hacer clic en la tarjeta FIC 360
+        // FIC 360 listeners y tabs
+        const fic360ProductCard = document.getElementById('fic360-product-card');
+        const fic360DetailView = document.getElementById('fic360-detail-view');
+        const fic360BackButton = document.getElementById('fic360-back-button');
+        const fic360DetailsTab = document.getElementById('fic360-details-tab');
+        const fic360MovementsTab = document.getElementById('fic360-movements-tab');
+        const fic360DetailsContent = document.getElementById('fic360-details-content');
+        const fic360MovementsContent = document.getElementById('fic360-movements-content');
+        if (fic360ProductCard && fic360DetailView) {
+            fic360ProductCard.addEventListener('click', () => {
+                showDetailView(fic360DetailView);
+                showFic360Tab('details');
+            });
+        }
+        if (fic360BackButton) fic360BackButton.addEventListener('click', showMainView);
+        if (fic360DetailsTab) fic360DetailsTab.addEventListener('click', () => showFic360Tab('details'));
+        if (fic360MovementsTab) fic360MovementsTab.addEventListener('click', () => showFic360Tab('movements'));
+        function showFic360Tab(tabName) {
+            if (tabName === 'details') {
+                fic360DetailsTab.classList.add('border-white');
+                fic360DetailsTab.classList.remove('opacity-75');
+                fic360MovementsTab.classList.remove('border-white');
+                fic360MovementsTab.classList.add('opacity-75');
+                fic360DetailsContent.classList.remove('hidden');
+                fic360MovementsContent.classList.add('hidden');
+            } else if (tabName === 'movements') {
+                fic360MovementsTab.classList.add('border-white');
+                fic360MovementsTab.classList.remove('opacity-75');
+                fic360DetailsTab.classList.remove('border-white');
+                fic360DetailsTab.classList.add('opacity-75');
+                fic360MovementsContent.classList.remove('hidden');
+                fic360DetailsContent.classList.add('hidden');
+            }
+        }
+        document.getElementById('closeOtroFic').addEventListener('click', () => {
+            document.getElementById('otroFicModal').classList.add('hidden');
+        });
+        // Get references to the main views and elements
+        const mainView = document.getElementById('main-view');
+        const ficDetailView = document.getElementById('fic-detail-view');
+        const fvpDetailView = document.getElementById('fvp-detail-view');
+
+        const ficProductCard = document.getElementById('fic-product-card');
+        const fvpProductCard = document.getElementById('fvp-product-card');
+
+        const ficBackButton = document.getElementById('fic-back-button');
+        const fvpBackButton = document.getElementById('fvp-back-button');
+
+        const ficDetailsTab = document.getElementById('fic-details-tab');
+        const ficMovementsTab = document.getElementById('fic-movements-tab');
+        const ficDetailsContent = document.getElementById('fic-details-content');
+        const ficMovementsContent = document.getElementById('fic-movements-content');
+
+        const fvpDetailsTab = document.getElementById('fvp-details-tab');
+        const fvpMovementsTab = document.getElementById('fvp-movements-tab');
+        const fvpDetailsContent = document.getElementById('fvp-details-content');
+        const fvpMovementsContent = document.getElementById('fvp-movements-content');
+
+        // Function to show a specific detail view
+        function showDetailView(viewToShow) {
+            mainView.classList.add('hidden');
+            ficDetailView.classList.add('hidden');
+            fvpDetailView.classList.add('hidden');
+
+            viewToShow.classList.remove('hidden');
+            viewToShow.classList.add('flex'); // Ensure it's flex when visible
+        }
+
+        // Function to show the main view
+        function showMainView() {
+            ficDetailView.classList.add('hidden');
+            ficDetailView.classList.remove('flex');
+            fvpDetailView.classList.add('hidden');
+            fvpDetailView.classList.remove('flex');
+            mainView.classList.remove('hidden');
+        }
+
+        // Function to switch between Details and Movements tabs for FIC
+        function showFicTab(tabName) {
+            if (tabName === 'details') {
+                ficDetailsTab.classList.add('border-white');
+                ficDetailsTab.classList.remove('opacity-75');
+                ficMovementsTab.classList.remove('border-white');
+                ficMovementsTab.classList.add('opacity-75');
+                ficDetailsContent.classList.remove('hidden');
+                ficMovementsContent.classList.add('hidden');
+            } else if (tabName === 'movements') {
+                ficMovementsTab.classList.add('border-white');
+                ficMovementsTab.classList.remove('opacity-75');
+                ficDetailsTab.classList.remove('border-white');
+                ficDetailsTab.classList.add('opacity-75');
+                ficMovementsContent.classList.remove('hidden');
+                ficDetailsContent.classList.add('hidden');
+            }
+        }
+
+        // Function to switch between Details and Movements tabs for FVP
+        function showFvpTab(tabName) {
+            if (tabName === 'details') {
+                fvpDetailsTab.classList.add('border-white');
+                fvpDetailsTab.classList.remove('opacity-75');
+                fvpMovementsTab.classList.remove('border-white');
+                fvpMovementsTab.classList.add('opacity-75');
+                fvpDetailsContent.classList.remove('hidden');
+                fvpMovementsContent.classList.add('hidden');
+            } else if (tabName === 'movements') {
+                fvpMovementsTab.classList.add('border-white');
+                fvpMovementsTab.classList.remove('opacity-75');
+                fvpDetailsTab.classList.remove('border-white');
+                fvpDetailsTab.classList.add('opacity-75');
+                fvpMovementsContent.classList.remove('hidden');
+                fvpDetailsContent.classList.add('hidden');
+            }
+        }
+
+        // Event Listeners for FIC
+        ficProductCard.addEventListener('click', () => {
+            showDetailView(ficDetailView);
+            showFicTab('details'); // Ensure details tab is active on entry
+        });
+        ficBackButton.addEventListener('click', showMainView);
+        ficDetailsTab.addEventListener('click', () => showFicTab('details'));
+        ficMovementsTab.addEventListener('click', () => showFicTab('movements'));
+
+
+        // Mostrar modal de retiro solo desde la vista de detalle FIC
+        var ficRetirarBtn = document.getElementById('fic-retirar-btn');
+        if (ficRetirarBtn) {
+            ficRetirarBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('retiro-modal').classList.remove('hidden');
+            });
+        }
+        document.getElementById('close-retiro-modal').addEventListener('click', function() {
+            document.getElementById('retiro-modal').classList.add('hidden');
+        });
+
+        // Event Listeners for FVP
+        if (fvpProductCard && fvpDetailView) {
+            fvpProductCard.addEventListener('click', () => {
+                showDetailView(fvpDetailView);
+                showFvpTab('details');
+            });
+        }
+        if (fvpBackButton) fvpBackButton.addEventListener('click', showMainView);
+        if (fvpDetailsTab) fvpDetailsTab.addEventListener('click', () => showFvpTab('details'));
+        if (fvpMovementsTab) fvpMovementsTab.addEventListener('click', () => showFvpTab('movements'));
+    });
+    
+    </script>
+</body>
+</html>
